@@ -50,7 +50,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             processor: BookPersistProcessor::class,
-            itemUriTemplate: '/admin/books/{id}{._format}'
+            itemUriTemplate: '/admin/books'
         ),
         new Get(
             uriTemplate: '/admin/books/{id}{._format}'
@@ -217,10 +217,17 @@ class Book
     #[Assert\Regex(pattern: '/^[a-z0-9-]+$/', message: 'Slug must contain only lowercase Latin letters, numbers, or hyphens.')]
     public ?string $slug = null;
 
+    /**
+     * @var Collection<int, BookCategory>
+     */
+    #[ORM\ManyToMany(targetEntity: BookCategory::class, mappedBy: 'books')]
+    private Collection $categories;
+
     public function __construct()
     {
         $this->reviews = new ArrayCollection();
         $this->promotionStatus = PromotionStatus::None;
+        $this->categories = new ArrayCollection();
     }
 
     public function getAuthor(): string
@@ -280,6 +287,34 @@ class Book
     public function setTitle(string $title): self
     {
         $this->title = $title;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BookCategory>
+     */
+    #[Groups(groups: ['Book:read','Book:read:admin', 'Book:write'])]
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(BookCategory $category): static
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+            $category->addBook($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(BookCategory $category): static
+    {
+        if ($this->categories->removeElement($category)) {
+            $category->removeBook($this);
+        }
+
         return $this;
     }
 }
