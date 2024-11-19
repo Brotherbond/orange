@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace App\Entity;
 
@@ -17,6 +17,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\UrlGeneratorInterface;
 use App\Enum\BookCondition;
+use App\Enum\PromotionStatus;
 use App\Repository\BookRepository;
 use App\State\Processor\BookPersistProcessor;
 use App\State\Processor\BookRemoveProcessor;
@@ -193,13 +194,86 @@ class Book
     #[Groups(groups: ['Book:read', 'Book:read:admin', 'Bookmark:read'])]
     public ?int $rating = null;
 
+    /**
+     * Indicates the promotion status of the book.
+     * @var PromotionStatus
+     */
+    #[ORM\Column(type: 'string', enumType: PromotionStatus::class, options: ['default' => PromotionStatus::None])]
+    #[Groups(groups: ['Book:read', 'Book:write'])]
+    public PromotionStatus $promotionStatus = PromotionStatus::None;
+
+    /**
+     * A unique slug for the book.
+     * @var string
+     */
+    #[ORM\Column(type: "string", length: 255, unique: true)]
+    #[Groups(groups: ['Book:read', 'Book:write'])]
+    #[Assert\NotBlank]
+    public ?string $slug = null;
+
     public function __construct()
     {
         $this->reviews = new ArrayCollection();
+        $this->promotionStatus = PromotionStatus::None;
+    }
+
+    public function getAuthor(): string
+    {
+        return $this->author;
+    }
+
+    public function setAuthor(string $author): self
+    {
+        $this->author = $author;
+        return $this;
+    }
+
+    public function getBookUrl(): string
+    {
+        return $this->book;
+    }
+
+    public function setBookUrl(string $book): self
+    {
+        $this->book = $book;
+        return $this;
     }
 
     public function getId(): ?Uuid
     {
         return $this->id;
+    }
+
+    public function getPromotionStatus(): PromotionStatus
+    {
+        return $this->promotionStatus;
+    }
+
+    public function setPromotionStatus(PromotionStatus $promotionStatus): self
+    {
+        $this->promotionStatus = $promotionStatus;
+        return $this;
+    }
+
+    public function getSlug(): string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): self
+    {
+        $this->slug = $slug;
+        return $this;
+    }
+
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): self
+    {
+        $this->title = $title;
+        return $this;
     }
 }
