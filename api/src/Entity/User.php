@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace App\Entity;
 
@@ -119,5 +119,16 @@ class User implements UserInterface
         }
 
         return trim(\sprintf('%s %s', $this->firstName, $this->lastName));
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
+        return $this;
     }
 }

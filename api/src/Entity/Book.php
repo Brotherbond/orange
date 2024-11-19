@@ -183,6 +183,17 @@ class Book
     public Collection $reviews;
 
     /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Bookmark", mappedBy="book", cascade={"persist", "remove"})
+     */
+    #[ApiProperty(
+        types: ['https://schema.org/BookmarkAction'],
+        example: '/books/6acacc80-8321-4d83-9b02-7f2c7bf6eb1d/bookmarks',
+        uriTemplate: '/books/{bookId}/bookmarks{._format}'
+    )]
+    #[ORM\OneToMany(targetEntity: Bookmark::class, mappedBy: 'book', cascade: ['persist', 'remove'])]
+    private Collection $bookmarks;
+
+    /**
      * The overall rating, based on a collection of reviews or ratings, of the item.
      *
      * @see https://schema.org/aggregateRating
@@ -211,7 +222,7 @@ class Book
      * @Groups({"public"})
      */
     #[ORM\Column(type: "string", length: 255, unique: true)]
-    #[Groups(groups: ['Book:read','Book:read:admin', 'Book:write'])]
+    #[Groups(groups: ['Book:read', 'Book:read:admin', 'Book:write'])]
     #[Assert\NotBlank]
     #[Assert\Length(min: 5, max: 255, minMessage: 'Slug must be at least {{ limit }} characters.')]
     #[Assert\Regex(pattern: '/^[a-z0-9-]+$/', message: 'Slug must contain only lowercase Latin letters, numbers, or hyphens.')]
@@ -225,9 +236,10 @@ class Book
 
     public function __construct()
     {
-        $this->reviews = new ArrayCollection();
-        $this->promotionStatus = PromotionStatus::None;
+        $this->bookmarks = new ArrayCollection();
         $this->categories = new ArrayCollection();
+        $this->promotionStatus = PromotionStatus::None;
+        $this->reviews = new ArrayCollection();
     }
 
     public function getAuthor(): string
@@ -239,6 +251,11 @@ class Book
     {
         $this->author = $author;
         return $this;
+    }
+
+    public function getBookmarks(): Collection
+    {
+        return $this->bookmarks;
     }
 
     public function getBookUrl(): string
@@ -268,6 +285,11 @@ class Book
         return $this;
     }
 
+    public function getReviews(): Collection
+    {
+        return $this->reviews;
+    }
+
     public function getSlug(): string
     {
         return $this->slug;
@@ -293,7 +315,7 @@ class Book
     /**
      * @return Collection<int, BookCategory>
      */
-    #[Groups(groups: ['Book:read','Book:read:admin', 'Book:write'])]
+    #[Groups(groups: ['Book:read', 'Book:read:admin', 'Book:write'])]
     public function getCategories(): Collection
     {
         return $this->categories;

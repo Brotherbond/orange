@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace App\Entity;
 
@@ -199,7 +199,7 @@ class Review
     /**
      * @see https://schema.org/reviewBody
      */
-    #[ApiProperty(types: ['https://schema.org/reviewBody'])]
+    #[ApiProperty(types : ['https://schema.org/reviewBody'])]
     #[Assert\NotBlank(allowNull: false)]
     #[Groups(groups: ['Review:read', 'Review:write'])]
     #[ORM\Column(type: Types::TEXT)]
@@ -227,5 +227,16 @@ class Review
     public function getId(): ?Uuid
     {
         return $this->id;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
+        return $this;
     }
 }
