@@ -197,18 +197,24 @@ class Book
     /**
      * Indicates the promotion status of the book.
      * @var PromotionStatus
+     * @Groups({"admin"})
      */
     #[ORM\Column(type: 'string', enumType: PromotionStatus::class, options: ['default' => PromotionStatus::None])]
-    #[Groups(groups: ['Book:read', 'Book:write'])]
+    #[Groups(groups: ['Book:read:admin', 'Book:write'])]
+    #[Assert\NotBlank]
+    #[Assert\Choice(choices: ['None', 'Basic', 'Pro'], message: 'Invalid promotion status.')]
     public PromotionStatus $promotionStatus = PromotionStatus::None;
 
     /**
      * A unique slug for the book.
      * @var string
+     * @Groups({"public"})
      */
     #[ORM\Column(type: "string", length: 255, unique: true)]
-    #[Groups(groups: ['Book:read', 'Book:write'])]
+    #[Groups(groups: ['Book:read','Book:read:admin', 'Book:write'])]
     #[Assert\NotBlank]
+    #[Assert\Length(min: 5, max: 255, minMessage: 'Slug must be at least {{ limit }} characters.')]
+    #[Assert\Regex(pattern: '/^[a-z0-9-]+$/', message: 'Slug must contain only lowercase Latin letters, numbers, or hyphens.')]
     public ?string $slug = null;
 
     public function __construct()
